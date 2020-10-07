@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using leave_management.Data;
 using leave_management.Models;
+using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,7 +16,10 @@ namespace leave_management.Mappings
             CreateMap<LeaveType, LeaveTypeVM>().ReverseMap();        
             CreateMap<LeaveHistory, LeaveHistoryVM>().ReverseMap();
             CreateMap<LeaveAllocation, LeaveAllocationVM>().ReverseMap();
+            CreateMap<LeaveAllocation, EditLeaveAllocationVm>().ReverseMap();
             CreateMap<Employee, EmployeeVM>().ReverseMap();
+            
+
         }
     }
 }
