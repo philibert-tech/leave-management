@@ -60,6 +60,12 @@ namespace leave_management.Repository
             return FindAll().Where(q => q.EmployeeId == id && q.Period == period).ToList();
         }
 
+        public LeaveAllocation GetLeaveAllocationsByEmployeeAndType(string id, int Leavetypeid)
+        {
+            var period = DateTime.Now.Year;
+            return FindAll().FirstOrDefault(q => q.EmployeeId == id && q.Period == period && q.LeaveTypeId == Leavetypeid);
+        }
+
         public bool isExists(int id)
         {
             var exist = _db.LeaveAllocations.Any(q => q.Id == id);
