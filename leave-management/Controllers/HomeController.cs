@@ -10,10 +10,11 @@ using leave_management.Contracts;
 using leave_management.Data;
 using Microsoft.AspNetCore.Identity;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 
 namespace leave_management.Controllers
 {
-   
+   [Authorize]
     public class HomeController : Controller
     { 
         private readonly ILeaveAllocationRepository  _allocationRepo;
