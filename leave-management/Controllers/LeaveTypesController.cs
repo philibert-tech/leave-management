@@ -9,6 +9,7 @@ using leave_management.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace leave_management.Controllers
 {
@@ -18,11 +19,15 @@ namespace leave_management.Controllers
     {
 
         private readonly ILeaveTypeRepository _repo;
+        private readonly ILeaveAllocationRepository _AlloRepo;
+        private readonly ILeaveRequestRepository _requestRepo;
         private readonly IMapper _mapper;
 
-        public LeaveTypesController(ILeaveTypeRepository repo, IMapper mapper)
+        public LeaveTypesController(ILeaveTypeRepository repo, ILeaveAllocationRepository AlloRepo, ILeaveRequestRepository requestRepo, IMapper mapper)
         {
             _repo = repo;
+            _AlloRepo = AlloRepo;
+            _requestRepo = requestRepo;
             _mapper = mapper;
         }
         // GET: LeaveTypesController
@@ -149,10 +154,34 @@ namespace leave_management.Controllers
 
             if (!isSuccess)
             {
-
                 return BadRequest();
             }
 
+            var allocation = await _AlloRepo.FindAll();
+
+            if (allocation != null)
+            {
+            var AlloToDetete = allocation.ToList().Where(Q => Q.LeaveTypeId == id);
+
+            foreach (var item in AlloToDetete)
+            {
+                await _AlloRepo.Delete(item);
+            }
+            }
+           
+
+            var request = await _requestRepo.FindAll();
+
+            if (allocation != null)
+            {
+            var requestToDetete = request.ToList().Where(Q => Q.LeaveTypeId == id);
+
+            foreach (var item in requestToDetete)
+            {
+                await _requestRepo.Delete(item);
+            }
+            }
+                
             return RedirectToAction(nameof(Index));
 
         }
