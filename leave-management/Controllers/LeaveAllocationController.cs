@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace leave_management.Controllers
 {
@@ -29,10 +30,10 @@ namespace leave_management.Controllers
             _userManager = userManager;
         }
         // GET: LeaveAllocationController
-        public ActionResult Index()
+        public async Task<ActionResult> Index()
         {
-            var leavetypes = _TypeRepo.FindAll().ToList();
-            var mappedLeaveTypes = _mapper.Map<List<LeaveType>, List<LeaveTypeVM>>(leavetypes);
+            var leavetypes =await _TypeRepo.FindAll();
+            var mappedLeaveTypes = _mapper.Map<List<LeaveType>, List<LeaveTypeVM>>(leavetypes.ToList());
             var model = new CreateLeaveAllocationVm
             {
                 LeaveTypes = mappedLeaveTypes,
@@ -41,17 +42,28 @@ namespace leave_management.Controllers
             return View(model);
         }
 
-        public ActionResult SetLeave(int id)
+        public async Task<ActionResult> SetLeave(int id)
         {
-            var leaveType = _TypeRepo.FindById(id);
-            var employees = _userManager.GetUsersInRoleAsync("Employee").Result;
+            var leaveType =await _TypeRepo.FindById(id);
+            var employees = _userManager.GetUsersInRoleAsync("Employee").Result.ToList();
+         
 
             foreach (var emp in employees)
             {
-                if (_AllocationRepo.CheckAllocation(id, emp.Id)){
+                if (await _AllocationRepo.CheckAllocation(id, emp.Id)){
                     continue;                
                 }
-                
+
+                if ((leaveType.Name == "Maternity Leave") && (emp.Gender == "Male"  || emp.Gender == "Others"))
+                {
+                    continue;
+                }
+
+                if ((leaveType.Name == "Paternity Leave") && (emp.Gender == "Female" || emp.Gender == "Others"))
+                {
+                    continue;
+                }
+
                 var allocation = new LeaveAllocationVM
                 {
                     DateCreated = DateTime.Now,
@@ -63,7 +75,7 @@ namespace leave_management.Controllers
                 };
 
                 var leaveallocation = _mapper.Map<LeaveAllocationVM, LeaveAllocation>(allocation);
-                _AllocationRepo.Create(leaveallocation);
+              await  _AllocationRepo.Create(leaveallocation);
             }
             return RedirectToAction(nameof(Index));
         }
@@ -77,11 +89,11 @@ namespace leave_management.Controllers
         }
 
         // GET: LeaveAllocationController/Details/5
-        public ActionResult Details(string id)
+        public async Task<ActionResult> Details(string id)
         {
             var employee =_mapper.Map<EmployeeVM>( _userManager.FindByIdAsync(id).Result);
 
-            var allocations = _mapper.Map<List<LeaveAllocationVM>>(_AllocationRepo.GetLeaveAllocationsByEmployee(id));
+            var allocations = _mapper.Map<List<LeaveAllocationVM>>(await _AllocationRepo.GetLeaveAllocationsByEmployee(id));
 
             var model = new ViewAllocationVm
             {
@@ -114,9 +126,9 @@ namespace leave_management.Controllers
         }
 
         // GET: LeaveAllocationController/Edit/5
-        public ActionResult Edit(int id)
+        public async Task<ActionResult> Edit(int id)
         {
-            var leaveAllocation = _AllocationRepo.FindById(id);
+            var leaveAllocation =await _AllocationRepo.FindById(id);
             var model = _mapper.Map<EditLeaveAllocationVm>(leaveAllocation);
             return View(model);
         }
@@ -124,7 +136,7 @@ namespace leave_management.Controllers
         // POST: LeaveAllocationController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(EditLeaveAllocationVm model)
+        public async Task<ActionResult> Edit(EditLeaveAllocationVm model)
         {
             try
             {
@@ -132,10 +144,10 @@ namespace leave_management.Controllers
                 {
                     return View(model);
                 }
-                var record = _AllocationRepo.FindById(model.Id);
+                var record =await _AllocationRepo.FindById(model.Id);
                 record.NumberOfDays = model.NumberOfDays;
 
-              var isSuccess =  _AllocationRepo.Update(record);
+              var isSuccess =await  _AllocationRepo.Update(record);
 
                 if (!isSuccess)
                 {

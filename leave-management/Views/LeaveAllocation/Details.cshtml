@@ -60,7 +60,10 @@
     </dl>
 </div>
 <div>
-    <a asp-action="ListEmployees" asp-controller="LeaveAllocation">Back to List</a>
+    <a asp-action="ListEmployees" asp-controller="LeaveAllocation">Back to List</a>  
+    <a asp-action="MakeAdmin"  asp-controller="Home" asp-route-id="@Model.Employee.Id" class="btn btn-outline-success" onclick="confirm('Are you sure you want to make this user an Admin?')">
+        <i class="fas fa-star"></i> Promote to Admin
+    </a>
 </div>
 
 <hr />

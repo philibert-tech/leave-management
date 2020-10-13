@@ -13,5 +13,6 @@ namespace leave_management.Data
         public string TaxId { get; set; }
         public DateTime DateOfBirth { get; set; }
         public DateTime DateJoined { get; set; }
+        public string Gender { get; set; }
     }
 }

@@ -45,14 +45,14 @@ namespace leave_management.Controllers
             return View();
         }
 
-        public ActionResult MyLeave()
+        public async Task<ActionResult> MyLeave()
         {
             var EmployeeId = _userManager.GetUserAsync(User).Result.Id;
-            var requests = _requestRepo.GetLeaveRequestByEmployee(EmployeeId).ToList();
-            var allocations = _allocationRepo.GetLeaveAllocationsByEmployee(EmployeeId).ToList();
+            var requests =await  _requestRepo.GetLeaveRequestByEmployee(EmployeeId);
+            var allocations =await _allocationRepo.GetLeaveAllocationsByEmployee(EmployeeId);
 
-            var MappedAllocations = _mapper.Map<List<LeaveAllocationVM>>(allocations);
-            var MappedRequest = _mapper.Map<List<LeaveRequestVM>>(requests);
+            var MappedAllocations = _mapper.Map<List<LeaveAllocationVM>>(allocations.ToList());
+            var MappedRequest = _mapper.Map<List<LeaveRequestVM>>(requests.ToList());
 
 
 
@@ -62,6 +62,57 @@ namespace leave_management.Controllers
                 LeaveRequests = MappedRequest
             };
             return View(model);
+        }
+
+        public async Task<ActionResult> MakeAdmin(string id)
+        {
+            var employee =  _userManager.FindByIdAsync(id).Result;
+
+         var result =   await _userManager.RemoveFromRoleAsync(employee, "Employee");
+
+            if (result.Succeeded)
+            {
+                 var response = await _userManager.AddToRoleAsync(employee, "Administrator");
+
+                if (response.Succeeded)
+                {
+                    var allocation = await _allocationRepo.GetLeaveAllocationsByEmployee(employee.Id);
+                    var requests = await _requestRepo.GetLeaveRequestByEmployee(employee.Id);
+
+                    if(allocation != null)
+                    {
+                        foreach(var item in allocation)
+                        {
+                            await _allocationRepo.Delete(item);
+                        }
+                    }
+
+                    if (requests != null)
+                    {
+                        foreach (var item in requests)
+                        {
+                            await _requestRepo.Delete(item);
+                        }
+                    }
+
+                }
+                else
+                {
+                    ModelState.AddModelError("", "Failed to assign Administrator role");
+                    return RedirectToAction("Details", "LeaveAllocation", new { id = employee.Id});
+                }
+
+
+            }
+            else
+            {
+                ModelState.AddModelError("", "Failed to remove Employee role");
+                return RedirectToAction("Details", "LeaveAllocation", new { id = employee.Id });
+            }
+
+
+
+            return RedirectToAction("ListEmployees", "LeaveAllocation");
         }
 
         public IActionResult Privacy()

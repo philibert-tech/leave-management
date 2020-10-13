@@ -20,14 +20,14 @@
                 <div class="col-md-6">
                     <div class="form-group">
                         <label asp-for="StartDate" class="control-label"></label>
-                        <input asp-for="StartDate" class="form-control datepicker" minDate="2020-11-02"/>
+                        <input asp-for="StartDate" class="form-control datepicker" min="@DateTime.Now"/>
                         <span asp-validation-for="StartDate" class="text-danger"></span>
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="form-group">
                         <label asp-for="EndDate" class="control-label"></label>
-                        <input asp-for="EndDate" class="form-control datepicker" minDate="2020-11-02"/>
+                        <input asp-for="EndDate" class="form-control datepicker" min="@DateTime.Now.AddDays(1)"/>
                         <span asp-validation-for="EndDate" class="text-danger"></span>
                     </div>
                 </div>

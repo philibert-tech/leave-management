@@ -71,6 +71,11 @@ namespace leave_management.Areas.Identity.Pages.Account
             [DataType(DataType.Text)]
             [Display(Name = "Last Name")]
             public string Lastname { get; set; }
+
+            [Required]
+            [DataType(DataType.Text)]
+            [Display(Name = "Gender")]
+            public string Gender { get; set; }
         }
 
         public async Task OnGetAsync(string returnUrl = null)
@@ -85,9 +90,13 @@ namespace leave_management.Areas.Identity.Pages.Account
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
             if (ModelState.IsValid)
             {
-                var user = new Employee { UserName = Input.Email, Email = Input.Email,
+                var user = new Employee { 
+                    UserName = Input.Email,
+                    Email = Input.Email,
                     Firstname = Input.Firstname,
-                    Lastname = Input.Lastname };
+                    Lastname = Input.Lastname,
+                    Gender = Input.Gender
+                };
                 var result = await _userManager.CreateAsync(user, Input.Password);
                 if (result.Succeeded)
                 {

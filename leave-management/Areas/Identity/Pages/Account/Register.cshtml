@@ -60,6 +60,19 @@
                         </div>
                     </div>
                     <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
+
+                    <div class="input-group mb-3">
+
+                        <select asp-for="Input.Gender" class="form-control">
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                        </select>
+                        <div class="input-group-append">
+                            <div class="input-group-text">
+                                <span class="fas fa-venus-mars"></span>                              
+                            </div>
+                        </div>
+                    </div>
                     <div class="row">
                         <button type="submit" class="btn btn-primary btn-block">Register</button>
                         <!-- /.col -->
